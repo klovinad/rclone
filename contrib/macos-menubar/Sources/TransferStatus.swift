@@ -273,7 +273,7 @@ struct TransferPanel: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 8) {
-                Image(systemName: "icloud").font(.system(size: 20, weight: .medium)).accessibilityHidden(true)
+                Image(nsImage: RcloneIcon.image).accessibilityHidden(true)
                 Text("Rclone").font(.system(size: 15, weight: .semibold))
                 if preview { Text("Demo").font(.caption).foregroundStyle(StatusPalette.secondary) }
                 Spacer()

@@ -142,10 +142,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func updateIcon() {
         guard let button = statusItem?.button else { return }
-        let image = NSImage(systemSymbolName: monitor.snapshot.symbol, accessibilityDescription: nil)?
-            .withSymbolConfiguration(.init(pointSize: 16, weight: .medium))
-        image?.isTemplate = true
-        button.image = image
+        button.image = RcloneIcon.image
         button.imagePosition = .imageOnly
         button.title = ""
         button.toolTip = "Rclone · " + monitor.snapshot.status

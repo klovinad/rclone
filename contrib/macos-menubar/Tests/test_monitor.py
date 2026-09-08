@@ -60,7 +60,8 @@ class MonitorTests(unittest.TestCase):
                 }))
                 binary = root / "MonitorTests"
                 subprocess.run(["xcrun", "swiftc", "-parse-as-library",
-                                str(ROOT / "Sources/TransferStatus.swift"), str(ROOT / "Tests/MonitorTests.swift"),
+                                str(ROOT / "Sources/RcloneIcon.swift"), str(ROOT / "Sources/TransferStatus.swift"),
+                                str(ROOT / "Tests/MonitorTests.swift"),
                                 "-o", str(binary), "-framework", "AppKit", "-framework", "SwiftUI"], check=True)
                 environment = dict(os.environ, RCLONE_MENUBAR_STATE_DIR=str(root), MENUBAR_TEST_SCENARIO=str(scenario))
                 result = subprocess.run([str(binary)], env=environment, text=True, capture_output=True, timeout=30)
