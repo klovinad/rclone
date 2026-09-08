@@ -1,0 +1,19 @@
+{
+  "phase": "active",
+  "title": "Demo project",
+  "stats": {
+    "bytes": 19800000000,
+    "totalBytes": 32000000000,
+    "speed": 54000000,
+    "eta": 228,
+    "errors": 0,
+    "transfers": 2,
+    "totalTransfers": 6,
+    "transferring": [
+      {"name":"Camera A/Interview.mov","bytes":6000000000,"size":10000000000,"speedAvg":20000000,"eta":200,"group":"job/101","srcFs":"/media/Demo project","dstFs":"remote:Demo project"},
+      {"name":"Camera B/Interview.mov","bytes":2400000000,"size":8000000000,"speedAvg":14000000,"eta":400,"group":"job/101","srcFs":"/media/Demo project","dstFs":"remote:Demo project"},
+      {"name":"Audio/Mix.wav","bytes":1100000000,"size":2000000000,"speedAvg":10000000,"eta":90,"group":"job/101","srcFs":"/media/Demo project","dstFs":"remote:Demo project"},
+      {"name":"Proxies/Interview proxy.mp4","bytes":2300000000,"size":4000000000,"speedAvg":10000000,"eta":170,"group":"job/101","srcFs":"/media/Demo project","dstFs":"remote:Demo project"}
+    ]
+  }
+}
