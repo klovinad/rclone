@@ -211,11 +211,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     try await client.verify()
                     shutdownRuntime = state
                     struct Jobs: Decodable { let runningIds: [Int] }
-                    struct Groups: Decodable { let groups: [String] }
+                    struct Groups: Decodable { let groups: [String]? }
                     let jobs: Jobs = try await client.call("job/list")
                     let groups: Groups = try await client.call("core/group-list")
                     let ids = Set(jobs.runningIds.map { "job/\($0)" })
-                    active = groups.groups.contains { ids.contains($0) }
+                    active = (groups.groups ?? []).contains { ids.contains($0) }
                 } catch { active = nil }
             }
             if active != false {

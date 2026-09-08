@@ -213,11 +213,11 @@ final class TransferMonitor: ObservableObject {
                 lastEnginePID = runtime.rclone_pid
             }
             struct Jobs: Decodable { let runningIds: [Int] }
-            struct Groups: Decodable { let groups: [String] }
+            struct Groups: Decodable { let groups: [String]? }
             let jobs: Jobs = try await client.call("job/list")
             let groups: Groups = try await client.call("core/group-list")
             let running = Set(jobs.runningIds.map { "job/\($0)" })
-            let active = groups.groups.filter { running.contains($0) }.sorted()
+            let active = (groups.groups ?? []).filter { running.contains($0) }.sorted()
             var collected: [TransferStats] = []
             var phase: TransferSnapshot.Phase = .active
             if !active.isEmpty {

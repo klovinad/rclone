@@ -36,7 +36,7 @@ class MonitorTests(unittest.TestCase):
                     elif self.path == "/job/list":
                         value = {"runningIds": current.get("running", [])}
                     elif self.path == "/core/group-list":
-                        value = {"groups": ["global", "job/17"]}
+                        value = {"groups": current.get("groups", ["global", "job/17"])}
                     elif self.path == "/core/stats" and data.get("group") == "job/17":
                         value = current.get("stats", {})
                     elif self.path == "/job/status" and "finished" in current:

@@ -15,6 +15,10 @@ struct MonitorTests {
             try JSONSerialization.data(withJSONObject: body).write(to: scenario, options: .atomic)
         }
         let monitor = TransferMonitor()
+        try Data("{\"groups\":null}".utf8).write(to: scenario, options: .atomic)
+        await monitor.refresh()
+        precondition(monitor.hasConnection && monitor.snapshot.phase == .idle && monitor.snapshot.files.isEmpty,
+                     "A fresh engine with null stats groups must show idle, not a connection failure")
         try stage(running: [17, 99])
         await monitor.refresh()
         precondition(monitor.hasConnection && monitor.snapshot.phase == .active)
@@ -49,6 +53,6 @@ struct MonitorTests {
         let first = ActiveFile(name: "same.mov", group: "job/1")
         let second = ActiveFile(name: "same.mov", group: "job/2")
         precondition(first.id != second.id, "Files from different jobs must keep distinct row identities")
-        print("PASS: active-job filtering, failure, expired history, engine change, offline state, unknown ETA, row identity")
+        print("PASS: empty startup, active-job filtering, failure, expired history, engine change, offline state, unknown ETA, row identity")
     }
 }
