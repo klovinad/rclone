@@ -1261,7 +1261,7 @@ func (o *Object) Hash(ctx context.Context, r hash.Type) (string, error) {
 
 		if !o.translatedLink {
 			var fd *os.File
-			fd, err = file.Open(o.path)
+			fd, err = openFileForRead(o.path)
 			if fd != nil {
 				in = fd
 			}
@@ -1465,7 +1465,7 @@ func (o *Object) Open(ctx context.Context, options ...fs.OpenOption) (in io.Read
 		return o.openTranslatedLink(offset, limit)
 	}
 
-	fd, err := file.Open(o.path)
+	fd, err := openFileForRead(o.path)
 	if err != nil {
 		return
 	}
