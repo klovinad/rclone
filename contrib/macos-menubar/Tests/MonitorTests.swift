@@ -6,11 +6,13 @@ struct MonitorTests {
         let scenario = URL(fileURLWithPath: ProcessInfo.processInfo.environment["MENUBAR_TEST_SCENARIO"]!)
         let file: [String: Any] = ["name": "Camera/Example.mov", "bytes": 40, "size": 100,
                                  "group": "job/17", "srcFs": "/media/Demo", "dstFs": "remote:Demo"]
-        func stage(running: [Int], finished: Bool = false, success: Bool = true) throws {
+        func stage(running: [Int], finished: Bool = false, success: Bool = true,
+                   checking: [String] = [], transferring: Bool = true) throws {
             let body: [String: Any] = [
                 "running": running, "finished": finished, "success": success,
                 "stats": ["bytes": 40, "totalBytes": 100, "speed": 10, "errors": 0,
-                          "transfers": 0, "totalTransfers": 1, "transferring": finished ? [] : [file]],
+                          "transfers": 0, "totalTransfers": 1, "checking": checking,
+                          "transferring": finished || !transferring ? [] : [file]],
             ]
             try JSONSerialization.data(withJSONObject: body).write(to: scenario, options: .atomic)
         }
@@ -26,6 +28,25 @@ struct MonitorTests {
                      "Historical global stats and API-only jobs must not enter transfer totals")
         precondition(monitor.snapshot.title == "Demo")
         precondition(monitor.snapshot.eta == nil && TransferText.duration(nil) == "Calculating…")
+
+        let checks = ["Camera/Проверка.mov", "Audio/Interview.wav"]
+        try stage(running: [17], checking: checks)
+        await monitor.refresh()
+        precondition(monitor.hasConnection && monitor.snapshot.phase == .active,
+                     "RC checking entries are filename strings, not objects")
+        precondition(monitor.snapshot.checking == 2 && monitor.snapshot.files.count == 1,
+                     "File checks and uploads must remain visible at the same time")
+
+        try stage(running: [17], checking: checks, transferring: false)
+        await monitor.refresh()
+        precondition(monitor.hasConnection && monitor.snapshot.phase == .active
+                     && monitor.snapshot.status == "Checking files" && monitor.snapshot.checking == 2,
+                     "Checksum-only activity must show checking instead of offline")
+
+        for emptyStats in ["{}", "{\"checking\":null}", "{\"checking\":[]}"] {
+            let stats = try JSONDecoder().decode(TransferStats.self, from: Data(emptyStats.utf8))
+            precondition((stats.checking?.count ?? 0) == 0)
+        }
 
         try stage(running: [], finished: true, success: false)
         await monitor.refresh()
@@ -53,6 +74,6 @@ struct MonitorTests {
         let first = ActiveFile(name: "same.mov", group: "job/1")
         let second = ActiveFile(name: "same.mov", group: "job/2")
         precondition(first.id != second.id, "Files from different jobs must keep distinct row identities")
-        print("PASS: empty startup, active-job filtering, failure, expired history, engine change, offline state, unknown ETA, row identity")
+        print("PASS: empty startup, active-job filtering, simultaneous checks and uploads, checksum-only activity, missing/null/empty checks, failure, expired history, engine change, offline state, unknown ETA, row identity")
     }
 }

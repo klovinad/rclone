@@ -90,8 +90,7 @@ struct TransferStats: Decodable {
     var transfers: Int?
     var totalTransfers: Int?
     var transferring: [ActiveFile]?
-    var checking: [CheckingFile]?
-    struct CheckingFile: Decodable { let name: String? }
+    var checking: [String]?
 }
 
 struct TransferSnapshot {
