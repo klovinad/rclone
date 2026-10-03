@@ -84,3 +84,13 @@ and optionally `--light` or `--dark`. The preview is labeled **Demo**, reads onl
 the supplied fixture, and does not start or contact a service. Test keyboard
 focus, scrolling with a larger fixture, Escape, and panel placement on each
 display separately from the protocol tests.
+
+### Menu bar transfer direction
+
+The cloud shows an up arrow for uploads, a down arrow for downloads, and both
+arrows when uploads and downloads run together. A horizontal arrow marks copies
+between two remote paths or two local paths. File checks use a magnifying glass;
+unknown direction or preparation uses dots. Idle shows the R, and unavailable or
+failed status shows an exclamation mark. The icon keeps the same size and uses the
+system menu bar foreground color. Status refreshes every two seconds; transfers
+that finish between polls may not display an active arrow.

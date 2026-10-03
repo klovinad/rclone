@@ -12,6 +12,15 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class MonitorTests(unittest.TestCase):
+    def test_transfer_directions(self):
+        with tempfile.TemporaryDirectory(prefix="rclone-direction-") as folder:
+            binary = Path(folder) / "DirectionTests"
+            subprocess.run(["xcrun", "swiftc", "-parse-as-library",
+                            str(ROOT / "Sources/RcloneIcon.swift"), str(ROOT / "Sources/TransferStatus.swift"),
+                            str(ROOT / "Tests/DirectionTests.swift"), "-o", str(binary),
+                            "-framework", "AppKit", "-framework", "SwiftUI"], check=True)
+            subprocess.run([str(binary)], check=True, timeout=15)
+
     def test_rc_lifecycle(self):
         with tempfile.TemporaryDirectory(prefix="rclone-menubar-monitor-") as folder:
             root = Path(folder)

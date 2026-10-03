@@ -142,7 +142,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func updateIcon() {
         guard let button = statusItem?.button else { return }
-        button.image = RcloneIcon.image
+        button.image = RcloneIcon.image(for: monitor.snapshot.indicator)
         button.imagePosition = .imageOnly
         button.title = ""
         button.toolTip = "Rclone · " + monitor.snapshot.status

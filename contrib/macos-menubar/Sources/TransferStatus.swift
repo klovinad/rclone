@@ -93,6 +93,10 @@ struct TransferStats: Decodable {
     var checking: [String]?
 }
 
+enum TransferIndicator: String, CaseIterable {
+    case idle, upload, download, both, copy, checking, working, warning
+}
+
 struct TransferSnapshot {
     enum Phase: String { case loading, active, idle, completed, failed, offline }
     var phase: Phase = .loading
@@ -107,6 +111,29 @@ struct TransferSnapshot {
     var checking = 0
     var files: [ActiveFile] = []
     var fraction: Double? { totalBytes > 0 ? min(1, max(0, bytes / totalBytes)) : nil }
+    var indicator: TransferIndicator {
+        guard phase == .active else {
+            return [.offline, .failed].contains(phase) ? .warning : (phase == .loading ? .working : .idle)
+        }
+        guard !files.isEmpty else { return checking > 0 ? .checking : .working }
+        let directions = Set(files.map { file -> TransferIndicator in
+            guard let source = Self.isLocal(file.srcFs), let destination = Self.isLocal(file.dstFs) else {
+                return .working
+            }
+            if source == destination { return .copy }
+            return source ? .upload : .download
+        })
+        if directions.contains(.upload) && directions.contains(.download) { return .both }
+        return directions.count == 1 ? directions.first! : .working
+    }
+
+    private static func isLocal(_ path: String?) -> Bool? {
+        guard let path, !path.isEmpty else { return nil }
+        if path.hasPrefix("/") || path.hasPrefix("./") || path.hasPrefix("../") || path.hasPrefix(":local:")
+            || path.hasPrefix(":local,") || path.hasPrefix(":local{") || path.hasPrefix("local{") { return true }
+        return path.contains(":") ? false : nil
+    }
+
     var symbol: String {
         switch phase {
         case .active: return "icloud.and.arrow.up"
@@ -118,7 +145,17 @@ struct TransferSnapshot {
     var status: String {
         switch phase {
         case .loading: return "Connecting…"
-        case .active: return files.isEmpty ? (checking > 0 ? "Checking files" : "Preparing transfer") : "Transferring · \(files.count)"
+        case .active:
+            if files.isEmpty { return checking > 0 ? "Checking files" : "Preparing transfer" }
+            let label: String
+            switch indicator {
+            case .upload: label = "Uploading ↑"
+            case .download: label = "Downloading ↓"
+            case .both: label = "Uploading and downloading ↕"
+            case .copy: label = "Copying ↔"
+            default: label = "Transferring"
+            }
+            return label + " · \(files.count)"
         case .idle: return "No active transfers"
         case .completed: return "Transfer completed"
         case .failed: return "Transfer failed"
@@ -187,7 +224,7 @@ final class TransferMonitor: ObservableObject {
             while !Task.isCancelled {
                 guard let self else { return }
                 await self.refresh()
-                try? await Task.sleep(nanoseconds: self.isVisible ? 2_000_000_000 : 8_000_000_000)
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
             }
         }
     }
